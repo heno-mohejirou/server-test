@@ -1,22 +1,19 @@
 # app.py
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    result = None
+@app.route("/add", methods=["POST"])
+def add():
+    data = request.json
 
-    if request.method == "POST":
-        num1 = request.form.get("num1")
-        num2 = request.form.get("num2")
-
-        try:
-            result = int(num1) + int(num2)
-        except:
-            result = "エラー（数値を入力してください）"
-
-    return render_template("index.html", result=result)
+    try:
+        num1 = int(data["num1"])
+        num2 = int(data["num2"])
+        result = num1 + num2
+        return jsonify({"result": result})
+    except:
+        return jsonify({"error": "数値を入力してください"}), 400
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
