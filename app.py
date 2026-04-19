@@ -9,10 +9,15 @@ def add():
     data = request.json
 
     try:
-        num1 = int(data["num1"])
-        num2 = int(data["num2"])
-        result = num1 + num2
-        return jsonify({"result": result})
+        grade = data["grade"]
+        testname = data["testname"]
+        username = data["username"]
+        password = data["password"]
+        
+        return jsonify({"grade": grade,
+                        "testname": testname,
+                        "username": username, 
+                        "password": password})
     except:
         return jsonify({"error": "数値を入力してください"}), 400
 
