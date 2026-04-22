@@ -2,13 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import threading
 import time
+import requests
 
 app = Flask(__name__)
 CORS(app)
 
 # 状態管理
 is_busy = False
-results = {}  # usernameごとに結果保存
+results = {}
 
 @app.route("/status", methods=["GET"])
 def status():
@@ -28,7 +29,6 @@ def process():
 
     is_busy = True
 
-    # 非同期処理
     def task():
         global is_busy
 
@@ -36,6 +36,15 @@ def process():
 
         result = f"{username}-{password}"
         results[username] = result
+
+        # 🔥 ここで通知（重要）
+        try:
+            requests.post(
+                "https://my-worker.syousei-syousei-06-25.workers.dev/complete",
+                json={"username": username}
+            )
+        except Exception as e:
+            print("通知失敗:", e)
 
         is_busy = False
 
