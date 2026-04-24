@@ -26,38 +26,27 @@ def process():
     data = request.json
     username = data["username"]
     password = data["password"]
-    testname = data["testname"]
-    grade = data["grade"]
+    #testname = data["testname"]
+    #grade = data["grade"]
 
     is_busy = True
 
     def task():
         global is_busy
+
+        time.sleep(5)  # ← Seleniumの代わり
+
+        result = f"{username}-{password}" #-{testname}-{grade}"
+        results[username] = result
+
+        # 🔥 ここで通知（重要）
         try:
-            print("処理開始")
-
-            time.sleep(5)
-
-            result = f"{username}-{password}-{testname}-{grade}"
-            print("result:", result)
-
-            results[username] = result
-
-            print("保存完了")
-
             requests.post(
                 "https://my-worker.syousei-syousei-06-25.workers.dev/complete",
                 json={"username": username}
             )
-
-            print("通知完了")
-
         except Exception as e:
-            print("エラー:", e)
-
-        finally:
-            is_busy = False
-            print("処理終了")
+            print("通知失敗:", e)
 
         is_busy = False
 
