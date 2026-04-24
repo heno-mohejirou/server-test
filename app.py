@@ -26,18 +26,19 @@ def process():
     data = request.json
     username = data["username"]
     password = data["password"]
+    testname = data["testname"]
+    grade = data["grade"]
 
     is_busy = True
 
     def task():
         global is_busy
 
-        time.sleep(5)  # ← Seleniumの代わり
+        time.sleep(5)
 
-        result = f"{username}-{password}"
+        result = f"{username}-{password}-{testname}-{grade}"
         results[username] = result
-
-        # 🔥 ここで通知（重要）
+        
         try:
             requests.post(
                 "https://my-worker.syousei-syousei-06-25.workers.dev/complete",
