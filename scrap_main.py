@@ -4,6 +4,9 @@ from operation.browser_session import BrowserSession
 from operation.screen_operation import ScreenOperation
 
 def main(testnames, password, username, grade):
+
+    browser = None
+
     try:
         for testname in testnames:
             # print("[DEBUG] Calling BrowserSession()...")
@@ -61,9 +64,12 @@ def main(testnames, password, username, grade):
             # print("[DEBUG] Callong browser.quit()...")
             browser.quit()
 
+            browser = None
+
         return "complet"
 
     except Exception as e:
+        print("main error:", e)
         return f"error {e}"
 
     finally:
