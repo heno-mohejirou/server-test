@@ -26,8 +26,8 @@ def process():
     data = request.json
     username = data["username"]
     password = data["password"]
-    #testname = data["testname"]
-    #grade = data["grade"]
+    testname = data["testname"]
+    grade = data["grade"]
 
     is_busy = True
 
@@ -36,7 +36,7 @@ def process():
 
         time.sleep(5)  # ← Seleniumの代わり
 
-        result = f"{username}-{password}" #-{testname}-{grade}"
+        result = f"{username}-{password}-{testname}-{grade}"
         results[username] = result
 
         # 🔥 ここで通知（重要）
