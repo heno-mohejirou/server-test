@@ -33,19 +33,31 @@ def process():
 
     def task():
         global is_busy
-
-        time.sleep(5)
-
-        result = f"{username}-{password}-{testname}-{grade}"
-        results[username] = result
-        
         try:
+            print("処理開始")
+
+            time.sleep(5)
+
+            result = f"{username}-{password}-{testname}-{grade}"
+            print("result:", result)
+
+            results[username] = result
+
+            print("保存完了")
+
             requests.post(
                 "https://my-worker.syousei-syousei-06-25.workers.dev/complete",
                 json={"username": username}
             )
+
+            print("通知完了")
+
         except Exception as e:
-            print("通知失敗:", e)
+            print("エラー:", e)
+
+        finally:
+            is_busy = False
+            print("処理終了")
 
         is_busy = False
 
