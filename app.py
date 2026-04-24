@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from scrap_main import main
 import threading
 import time
 import requests
@@ -34,12 +35,9 @@ def process():
     def task():
         global is_busy
 
-        time.sleep(5)  # ← Seleniumの代わり
-
-        result = f"{username}-{password}-{testname}-{grade}"
+        result = main(testname, password, username, grade)
         results[username] = result
 
-        # 🔥 ここで通知（重要）
         try:
             requests.post(
                 "https://my-worker.syousei-syousei-06-25.workers.dev/complete",
