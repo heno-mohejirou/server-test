@@ -20,9 +20,17 @@ class BrowserSession:
 
     # ブラウザ起動
     def boot(self):
+
+        print("==== CHECK ====")
+        print("chromium:", os.path.exists("/usr/bin/chromium"))
+        print("chromium-browser:", os.path.exists("/usr/bin/chromium-browser"))
+        print("google-chrome:", os.path.exists("/usr/bin/google-chrome"))
+        print("chromedriver:", os.path.exists("/usr/bin/chromedriver"))
+        print("===============")
+
         options = Options()
 
-        options.binary_location = "/usr/bin/chromium"
+        options.binary_location = "/usr/bin/chromium-browser"
 
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
