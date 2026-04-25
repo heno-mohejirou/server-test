@@ -30,7 +30,7 @@ class BrowserSession:
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
-        service = Service("/usr/bin/chromedriver")  # ← ★これも重要
+        service = Service(executable_path="/usr/bin/chromedriver")  # ← ★これも重要
 
         self.driver = webdriver.Chrome(service=service, options=options)
 
