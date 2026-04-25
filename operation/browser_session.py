@@ -22,16 +22,20 @@ class BrowserSession:
     # ブラウザ起動
     def boot(self):
         options = Options()
-        options.add_argument("--headless=new")
+        options.binary_location = "/usr/bin/chromium"
+
+        options.add_argument("--headless")
         options.add_argument("--window-size=1920,1080")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
-        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-dev-shm-usage")
 
-        service = Service(ChromeDriverManager().install())
+        service = Service("/usr/bin/chromedriver")  # ← ★これも重要
+
         self.driver = webdriver.Chrome(service=service, options=options)
 
         self.driver.get(self.url)
+
         return self.driver
 
     # ブラウザ終了
