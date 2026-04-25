@@ -12,6 +12,10 @@ CORS(app)
 is_busy = False
 results = {}
 
+@app.route("/")
+def home():
+    return "OK"
+
 @app.route("/status", methods=["GET"])
 def status():
     return jsonify({"busy": is_busy})

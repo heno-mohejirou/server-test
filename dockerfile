@@ -20,4 +20,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000"]
+CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]
