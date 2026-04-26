@@ -42,14 +42,13 @@ def process():
         global is_busy
 
         print("TASK START", flush=True)
+        print(f"{testnames}, {password}, {username}, {grade}", flush=True)
 
         if isinstance(testnames, str):
             tn = [testnames]
         else:
             tn = testnames
 
-        grade = str(grade)
-        
         if grade == "0":
             grade = "sophomore"
         else:
