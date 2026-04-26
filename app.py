@@ -35,12 +35,12 @@ def process():
     testname = data["testname"]
     grade = data["grade"]
 
+    print(f"{testname}, {password}, {username}, {grade}")
+
     is_busy = True
 
     def task():
         global is_busy
-
-        print(f"{testname, password, username, grade}")
 
         result = main(testname, password, username, grade)
         results[username] = result
