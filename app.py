@@ -39,6 +39,8 @@ def process():
     def task():
         global is_busy
 
+        print(f"{testname, password, username, grade}")
+
         result = main(testname, password, username, grade)
         results[username] = result
 
