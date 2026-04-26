@@ -55,6 +55,8 @@ def process():
         else:
             grade = "junior"
 
+        print(f"grade: {grade}", flush=True)
+        
         result = main(tn, password, username, grade)
         results[username] = result
 
