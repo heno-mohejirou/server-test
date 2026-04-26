@@ -14,6 +14,7 @@ results = {}
 
 @app.route("/")
 def home():
+    print("DEBUG HIT", flush=True)
     return "OK"
 
 @app.route("/status", methods=["GET"])
