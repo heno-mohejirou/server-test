@@ -45,6 +45,10 @@ class BrowserSession:
         self.driver = webdriver.Chrome(
             service=service, options=options)
 
+        # ngrokの警告ページをスキップするためのヘッダーを追加
+        self.driver.execute_cdp_cmd('Network.enable', {})
+        self.driver.execute_cdp_cmd('Network.setExtraHTTPHeaders', {'headers': {'ngrok-skip-browser-warning': 'true'}})
+
         self.driver.get(self.url)
 
         return self.driver
