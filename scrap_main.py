@@ -7,8 +7,7 @@ def main(testnames, password, username, grade):
 
     browser = None
 
-    print("[DEBUG] Calling main()...")
-
+    print("[DEBUG] Calling main()...", flush=True)
     try:
         for testname in testnames:
             # print("[DEBUG] Calling BrowserSession()...")
@@ -19,11 +18,6 @@ def main(testnames, password, username, grade):
             operation = ScreenOperation(driver)
             bottun = PressBottun(driver)
             ansque = AnserQuestion(driver)
-
-            if grade == "0":
-                grade = "sophomore"
-            else:
-                grade = "junior"
             
             pairs_json = ansque.test_json(grade, testname)
 
@@ -71,7 +65,9 @@ def main(testnames, password, username, grade):
         return "complet"
 
     except Exception as e:
-        print("main error:", e)
+        print("main error:", e, flush=True)
+        import traceback
+        traceback.print_exc()
         return f"error {e}"
 
     finally:

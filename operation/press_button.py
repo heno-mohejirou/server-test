@@ -79,4 +79,4 @@ class PressBottun(ScreenOperation):
                 select.select_by_visible_text(answer)
                             
             except Exception as e:
-                print(f"[ERROR] セレクト失敗: {e}")  
+                print(f"[ERROR] セレクト失敗: {e}", flush=True)  
