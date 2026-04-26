@@ -38,18 +38,19 @@ def process():
 
     is_busy = True
 
-    def task():
+    def task(grade_param):
         global is_busy
 
         print("TASK START", flush=True)
-        print(f"{testnames}, {password}, {username}, {grade}", flush=True)
 
         if isinstance(testnames, str):
             tn = [testnames]
         else:
             tn = testnames
 
-        if grade == "0":
+        grade_local = str(grade_param)
+
+        if grade_local == "0":
             grade = "sophomore"
         else:
             grade = "junior"
@@ -59,7 +60,7 @@ def process():
 
         is_busy = False
 
-    threading.Thread(target=task).start()
+    threading.Thread(target=task, args=(grade,)).start()
 
     return jsonify({"status": "started"})
 
