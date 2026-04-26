@@ -21,23 +21,19 @@ class BrowserSession:
     # ブラウザ起動
     def boot(self):
 
-        print("==== CHECK ====")
-        print("chromium:", os.path.exists("/usr/bin/chromium"))
-        print("chromium-browser:", os.path.exists("/usr/bin/chromium-browser"))
-        print("google-chrome:", os.path.exists("/usr/bin/google-chrome"))
-        print("chromedriver:", os.path.exists("/usr/bin/chromedriver"))
-        print("===============")
-
         options = Options()
 
-        options.binary_location = "/usr/bin/google-chrome"
+        # Render上でインストールしたChromiumのパスを指定
+        options.binary_location = "/usr/bin/chromium"
 
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--window-size=1920,1080")
 
-        service = Service("/usr/bin/chromedriver") # ← ★これも重要
+        # Chromium driverのパス
+        service = Service("/usr/bin/chromedriver")
 
         self.driver = webdriver.Chrome(
             service=service, options=options)
