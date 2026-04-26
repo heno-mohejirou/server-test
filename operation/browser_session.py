@@ -30,7 +30,7 @@ class BrowserSession:
 
         options = Options()
 
-        options.binary_location = "/usr/bin/google-chrome"
+        options.binary_location = "/usr/bin/chromium"
 
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
