@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from scrap_main import main
 import threading
-import time
 import requests
 
 app = Flask(__name__)
@@ -32,26 +31,25 @@ def process():
     data = request.json
     username = data["username"]
     password = data["password"]
-    testname = data["testname"]
+    testnames = data["testname"]
     grade = data["grade"]
 
-    print(f"{testname}, {password}, {username}, {grade}")
+    print(f"{testnames}, {password}, {username}, {grade}", flush=True)
 
     is_busy = True
 
     def task():
         global is_busy
 
-        result = main(testname, password, username, grade)
-        results[username] = result
+        print("TASK START", flush=True)
 
-        try:
-            requests.post(
-                "https://my-worker.syousei-syousei-06-25.workers.dev/complete",
-                json={"username": username}
-            )
-        except Exception as e:
-            print("通知失敗:", e)
+        if isinstance(testnames, str):
+            tn = [testnames]
+        else:
+            tn = testnames
+
+        result = main(tn, password, username, grade)
+        results[username] = result
 
         is_busy = False
 
