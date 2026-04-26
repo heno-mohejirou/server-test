@@ -1,6 +1,5 @@
 FROM python:3.11-slim
 
-# 必須ライブラリ + Chrome依存
 RUN apt-get update && apt-get install -y \
     wget curl unzip gnupg \
     fonts-liberation \
@@ -8,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     libgbm1 libgtk-3-0 libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Chromeインストール
+# Chrome
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
     | gpg --dearmor -o /usr/share/keyrings/google.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
@@ -16,10 +15,10 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
     apt-get update && \
     apt-get install -y google-chrome-stable
 
-# ★ 新方式（これが重要）
-RUN CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+') && \
-    DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_VERSION%%.*}") && \
-    wget -q "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip" && \
+# ★ 新方式（ここが全て）
+RUN CHROME_MAJOR=$(google-chrome --version | grep -oP '\d+' | head -1) && \
+    DRIVER_VERSION=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR}) && \
+    wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip && \
     unzip chromedriver-linux64.zip && \
     mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
     chmod +x /usr/bin/chromedriver && \
