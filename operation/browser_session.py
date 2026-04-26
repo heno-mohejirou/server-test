@@ -36,6 +36,9 @@ class BrowserSession:
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--lang=ja-JP")
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
         service = Service("/usr/bin/chromedriver") # ← ★これも重要
 
@@ -55,9 +58,14 @@ class BrowserSession:
     def login(self, username, password):
         driver = self.driver
 
-        WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.LINK_TEXT, "ログイン"))
-        ).click()
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.LINK_TEXT, "ログイン"))
+            ).click()
+        except Exception as e:
+            print(f"[ERROR] Login link not found! Current URL: {driver.current_url}", flush=True)
+            print(f"[ERROR] Page Title: {driver.title}", flush=True)
+            raise e
 
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "username"))
