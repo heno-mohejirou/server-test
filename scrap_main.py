@@ -9,25 +9,29 @@ def main(testnames, password, username, grade):
 
     try:
         for testname in testnames:
-            # print("[DEBUG] Calling BrowserSession()...")
+            print("[DEBUG] Calling BrowserSession()...")
             browser = BrowserSession()
-            # print("[DEBUG] Calling browser.boot()...")
+            print("[DEBUG] Calling browser.boot()...")
             driver = browser.boot()
 
             operation = ScreenOperation(driver)
             bottun = PressBottun(driver)
             ansque = AnserQuestion(driver)
 
+            print(f"[DEBUG] grade= {grade}")
+
             if grade == "0":
                 grade = "sophomore"
             else:
                 grade = "junior"
+
+            print(f"[DEBUG] grade= {grade}")
             
             pairs_json = ansque.test_json(grade, testname)
 
-            # print("[DEBUG] Calling browser.login()...")
+            print("[DEBUG] Calling browser.login()...")
             browser.login(username, password)
-            # print("[DEBUG] Calling operation.course()...")
+            print("[DEBUG] Calling operation.course()...")
             operation.course(grade, testname)
 
             operation.quiz()
