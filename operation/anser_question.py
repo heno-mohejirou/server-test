@@ -1,7 +1,6 @@
 import os
 import re
 import json
-import datetime
 
 from selenium.webdriver.common.by import By
 from operation.screen_operation import ScreenOperation
@@ -19,6 +18,11 @@ class AnserQuestion(ScreenOperation):
         ansque_path = os.path.join(root_dir, "data", "tests.json")
         with open(ansque_path, "r", encoding="utf-8") as f:
             json_obj = json.load(f)
+
+        print("grade =", grade)
+        print("testname =", testname)
+        print("available grades =", json_obj.keys())
+        print("available tests =", json_obj.get(grade, {}).keys())
 
         # print(f"[DEBUG] json_obj={json_obj}")
         # print(f"[DEBUG] grade={grade}")
