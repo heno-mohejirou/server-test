@@ -63,9 +63,11 @@ class BrowserSession:
         driver = self.driver
 
         try:
-            WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.LINK_TEXT, "ログイン"))
-            ).click()
+            # ログインリンクを探す（日本語「ログイン」、英語「Log in」、またはURLにloginを含むリンク）
+            login_link = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, "//a[contains(text(), 'ログイン') or contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'log in') or contains(@href, 'login')]"))
+            )
+            driver.execute_script("arguments[0].click();", login_link)
         except Exception as e:
             print(f"[ERROR] Login link not found! Current URL: {driver.current_url}", flush=True)
             print(f"[ERROR] Page Title: {driver.title}", flush=True)
