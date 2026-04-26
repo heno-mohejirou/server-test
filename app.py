@@ -48,6 +48,13 @@ def process():
         else:
             tn = testnames
 
+        grade = str(grade)
+        
+        if grade == "0":
+            grade = "sophomore"
+        else:
+            grade = "junior"
+
         result = main(tn, password, username, grade)
         results[username] = result
 
