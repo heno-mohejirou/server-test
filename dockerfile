@@ -11,13 +11,14 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearm
     apt-get install -y google-chrome-stable
 
 # ★ ここが修正ポイント
-RUN CHROME_MAJOR=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f 1) && \
-    DRIVER_VERSION=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}) && \
-    wget -q https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip && \
-    unzip chromedriver_linux64.zip && \
-    mv chromedriver /usr/bin/chromedriver && \
+RUN CHROME_VERSION=$(google-chrome --version | awk '{print $3}') && \
+    echo "Chrome version: $CHROME_VERSION" && \
+    DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_VERSION}") && \
+    echo "Driver version: $DRIVER_VERSION" && \
+    wget -q https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip && \
+    unzip chromedriver-linux64.zip && \
+    mv chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
     chmod +x /usr/bin/chromedriver
-
 WORKDIR /app
 COPY . /app
 
