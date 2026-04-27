@@ -34,33 +34,40 @@ def process():
     testnames = data["testname"]
     grade = data["grade"]
 
+    if username in results:
+        del results[username]
+
     print(f"{testnames}, {password}, {username}, {grade}", flush=True)
 
     is_busy = True
 
     def task(grade_param):
         global is_busy
+        try:
+            print("TASK START", flush=True)
 
-        print("TASK START", flush=True)
+            if isinstance(testnames, str):
+                tn = [testnames]
+            else:
+                tn = testnames
 
-        if isinstance(testnames, str):
-            tn = [testnames]
-        else:
-            tn = testnames
+            grade_local = str(grade_param)
 
-        grade_local = str(grade_param)
+            if grade_local == "0":
+                grade = "sophomore"
+            else:
+                grade = "junior"
 
-        if grade_local == "0":
-            grade = "sophomore"
-        else:
-            grade = "junior"
+            print(f"grade: {grade}", flush=True)
 
-        print(f"grade: {grade}", flush=True)
-        
-        result = main(tn, password, username, grade)
-        results[username] = result
+            result = main(tn, password, username, grade)
+            results[username] = result
 
-        is_busy = False
+        except Exception as e:
+            print(f"Fatal task error: {e}", flush=True)
+            results[username] = f"Fatal Error: {e}"
+        finally:
+            is_busy = False
 
     threading.Thread(target=task, args=(grade,)).start()
 
