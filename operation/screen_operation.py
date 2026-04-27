@@ -116,28 +116,49 @@ class ScreenOperation:
     def save(self):
         self.scroll()
 
-        primary = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, ".mod_quiz-next-nav.btn.btn-primary")
+        # Step 1: Click "Finish attempt..."
+        try:
+            # Try by NAME "next" first (commonly used for Finish attempt at the bottom of the last page)
+            btn = WebDriverWait(self.driver, 5).until(
+                EC.element_to_be_clickable((By.NAME, "next"))
             )
-        )
-        primary.click()
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+            self.driver.execute_script("arguments[0].click();", btn)
+        except:
+            try:
+                # Fallback to CSS class if "next" is not present
+                primary = WebDriverWait(self.driver, 5).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, ".mod_quiz-next-nav"))
+                )
+                self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", primary)
+                self.driver.execute_script("arguments[0].click();", primary)
+            except Exception as e:
+                print(f"[ERROR] Could not click 'Finish attempt': {e}", flush=True)
 
         self.scroll()
 
-        primary = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, ".btn.btn-primary")
+        # Step 2: Click "Submit all and finish"
+        try:
+            # Look for button/input by text, or fallback to ANY btn-primary
+            submit_xpath = "(//button[contains(text(), 'すべてを送信して終了する') or contains(text(), 'Submit all and finish')] | //input[contains(@value, 'すべてを送信して終了する') or contains(@value, 'Submit all and finish')] | //button[contains(@class, 'btn-primary')])[last()]"
+            primary = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, submit_xpath))
             )
-        )
-        primary.click()
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", primary)
+            self.driver.execute_script("arguments[0].click();", primary)
+        except Exception as e:
+            print(f"[ERROR] Could not click 'Submit all and finish': {e}", flush=True)
         
-        save = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, 'button[data-action="save"]')
+        # Step 3: Click confirmation modal "Submit all and finish"
+        try:
+            confirm_xpath = "(//button[@data-action='save'] | //button[contains(text(), 'すべてを送信して終了する') or contains(text(), 'Submit all and finish')])[last()]"
+            save_btn = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, confirm_xpath))
             )
-        )
-        save.click()
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", save_btn)
+            self.driver.execute_script("arguments[0].click();", save_btn)
+        except Exception as e:
+            print(f"[ERROR] Could not click final confirmation: {e}", flush=True)
 
     # 問題開始
     def quiz(self):
