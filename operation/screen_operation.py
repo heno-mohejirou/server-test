@@ -118,7 +118,7 @@ class ScreenOperation:
 
         primary = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, ".mod_quiz-next-nav.btn.btn-primary") # 弓削版：btn btn-primary　4.3：.mod_quiz-next-nav.btn.btn-primary
+                (By.CSS_SELECTOR, ".mod_quiz-next-nav.btn.btn-primary")
             )
         )
         primary.click()
