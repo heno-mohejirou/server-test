@@ -56,22 +56,20 @@ class ScreenOperation:
     # ページ遷移
     def next_page(self):
         try:
+            # 確実な「次のページ」ボタンを探す（Finish attempt は対象外にするため明示的にテキストを見る）
+            xpath = "//*[self::button or self::input or self::a][contains(text(), '次のページ') or contains(text(), 'Next page') or contains(text(), '次ページ') or contains(text(), '次へ') or @value='次のページ' or @value='Next page' or @value='次ページ' or @value='次へ']"
             btn = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.NAME, "next"))
+                EC.element_to_be_clickable((By.XPATH, xpath))
             )
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+            self.driver.execute_script("arguments[0].click();", btn)
+            
+            # DOMリフレッシュのために待機
+            import time
+            time.sleep(3)
+            return True
         except:
             return False
-
-        value = (btn.get_attribute("value") or "").strip()
-
-        if value in ("次のページ", "Next page"):
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView({block:'center'});", btn
-            )
-            self.driver.execute_script("arguments[0].click();", btn)
-            return True
-
-        return False
 
     # 問題遷移
     def course(self, grade, testname):
