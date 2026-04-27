@@ -34,24 +34,24 @@ class ScreenOperation:
     # 始めのページ遷移
     def submit_page(self):
         try:
-            btn = WebDriverWait(self.driver, 10).until(
+            # Confirmation modal might not appear if there is no time limit
+            btn = WebDriverWait(self.driver, 3).until(
                 EC.element_to_be_clickable((By.NAME, "submitbutton"))
             )
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
+            self.driver.execute_script("arguments[0].click();", btn)
         except:
-            return False
+            pass  # It's fine if the modal does not exist
 
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block:'center'});", btn
-        )
-        self.driver.execute_script("arguments[0].click();", btn)
-
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//div[contains(@class,'formulation')]")
+        try:
+            # Wait for formulation (questions div) to confirm the test has successfully started
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//div[contains(@class,'formulation')]"))
             )
-        )
-
-        return True
+            return True
+        except:
+            print("[ERROR] 'formulation' class not found, test might not have started correctly.", flush=True)
+            return False
     
     # ページ遷移
     def next_page(self):
@@ -162,11 +162,12 @@ class ScreenOperation:
 
     # 問題開始
     def quiz(self):
-        button = self.driver.find_element(By.CSS_SELECTOR, ".btn.btn-primary")
-        button.click()
-        next_button = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.NAME, "submitbutton")
+        try:
+            # Click "Attempt quiz now" or similar
+            button = WebDriverWait(self.driver, 5).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn.btn-primary"))
             )
-        )
-        next_button.click()
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", button)
+            self.driver.execute_script("arguments[0].click();", button)
+        except Exception as e:
+            print(f"[WARNING] Could not click 'Attempt quiz' button: {e}", flush=True)
