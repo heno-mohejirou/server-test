@@ -138,7 +138,7 @@ class ScreenOperation:
         # Step 2: Click "Submit all and finish"
         try:
             # Look for button/input by text (解答を送信 or すべてを送信), or fallback to ANY btn-primary
-            submit_xpath = "(//button[contains(text(), 'テストを終了') or contains(text(), 'すべてを送信') or contains(text(), 'Submit all and finish')] | //input[contains(@value, 'テストを終了') or contains(@value, 'すべてを送信') or contains(@value, 'Submit all and finish')] | //button[contains(@class, '.mod_quiz-next-nav.btn.btn-primary')])[last()]"
+            submit_xpath = "(//button[contains(text(), 'すべての解答を送信して終了する') or contains(text(), 'Submit all and finish')] | //input[contains(@value, 'すべての解答を送信して終了する') or contains(@value, 'Submit all and finish')] | //button[contains(@class, 'btn-primary')])[last()]"
             primary = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, submit_xpath))
             )
