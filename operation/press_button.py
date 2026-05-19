@@ -51,6 +51,7 @@ class PressBottun(ScreenOperation):
     # 入力ボックス
     def input_box(self, target_text):
             input_box = self.driver.find_element(By.CSS_SELECTOR,"input.form-control.d-inline")
+            input_box.clear()
             input_box.send_keys(target_text)
         
     # ラジオボタン
