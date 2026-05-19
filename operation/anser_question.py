@@ -42,27 +42,28 @@ class AnserQuestion(ScreenOperation):
     # 問題文の取得
     def get_question(self):
         elem = self.driver.find_elements(By.XPATH, "//div[@class='qtext']")
+        print(f"[DEBUG] lines={elem}")
         return elem
 
     # 回答の取得
     def get_anser(self, elem, pairs_json):
         lines = elem.text.strip().split("\n")
-        #print(f"[DEBUG] lines={lines}")
+        print(f"[DEBUG] lines={lines}")
 
         """問題文の行数"""
         if len(lines) >= 3 and "1つ選択してください:" not in lines:         # ３行以上なら２行目を取得
             lines = [i for i in lines if i != '' or ""]
-            #print(f"[DEBUG] lines={lines}")
+            print(f"[DEBUG] lines={lines}")
 
             target_line = lines[1]
         else:                       # １行目を取得
             target_line = lines[0]
 
-        #print(f"[DEBUG] target_line={target_line}")
+        print(f"[DEBUG] target_line={target_line}")
 
         word_text = re.sub(r"\s+", " ", target_line).strip()
 
-        #print(f"[DEBUG] word_text={word_text}")
+        print(f"[DEBUG] word_text={word_text}")
 
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});", elem
@@ -73,6 +74,6 @@ class AnserQuestion(ScreenOperation):
         )
 
         target_text = pairs_json.get(word_text)
-        #print(f"[DEBUG] terget_text={target_text}")
+        print(f"[DEBUG] terget_text={target_text}")
 
         return target_text
