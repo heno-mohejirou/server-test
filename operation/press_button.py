@@ -49,11 +49,19 @@ class PressBottun(ScreenOperation):
         return False
     
     # 入力ボックス
-    def input_box(self, target_text):
-            input_box = self.driver.find_element(By.CSS_SELECTOR,"input.form-control.d-inline")
-            input_box.clear()
-            input_box.send_keys(target_text)
-        
+    def input_box(self, elem, target_text):
+            input_box = elem.find_element(By.CSS_SELECTOR,"input.form-control.d-inline")
+            # readonly属性がある場合に入力できないため、JavaScriptで直接valueを書き換える
+            self.driver.execute_script("arguments[0].removeAttribute('readonly');", input_box)
+            self.driver.execute_script("arguments[0].value = arguments[1];", input_box, target_text)
+            
+            # send_keysでも入力イベントを発火させておく（Moodle側の内部状態更新のため）
+            try:
+                input_box.clear()
+                input_box.send_keys(target_text)
+            except:
+                pass
+
     # ラジオボタン
     def radio_bottun(self, elem, target_text):
             try:
