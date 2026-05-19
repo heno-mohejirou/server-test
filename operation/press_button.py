@@ -50,13 +50,26 @@ class PressBottun(ScreenOperation):
     
     # 入力ボックス
     def input_box(self, elem, target_text):
-            input_box = elem.find_element(By.CSS_SELECTOR,"input.form-control.d-inline")
-            # readonly属性がある場合に入力できないため、JavaScriptで直接valueを書き換える
-            self.driver.execute_script("arguments[0].removeAttribute('readonly');", input_box)
-            self.driver.execute_script("arguments[0].value = arguments[1];", input_box, target_text)
-            
-            # send_keysでも入力イベントを発火させておく（Moodle側の内部状態更新のため）
             try:
+                input_box = elem.find_element(By.CSS_SELECTOR, "input[type='text']")
+            except:
+                input_box = elem.find_element(By.CSS_SELECTOR, "input.form-control.d-inline")
+
+            # 要素が見える位置までスクロール
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", input_box)
+            
+            # value属性がない初期状態でも強制的に設定し、入力イベントを発生させる
+            self.driver.execute_script("""
+                arguments[0].removeAttribute('readonly');
+                arguments[0].value = arguments[1];
+                arguments[0].setAttribute('value', arguments[1]);
+                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+            """, input_box, target_text)
+            
+            # Seleniumの通常のキー入力も行う
+            try:
+                input_box.click()
                 input_box.clear()
                 input_box.send_keys(target_text)
             except:
