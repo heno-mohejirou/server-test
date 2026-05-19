@@ -56,9 +56,9 @@ class PressBottun(ScreenOperation):
     # ラジオボタン
     def radio_bottun(self, elem, target_text):
             try:
-                p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())='{target_text}']")
+                p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(.)='{target_text}']")
             except:
-                p_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())='{target_text}']")
+                p_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(.)='{target_text}']")
 
             radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
 
