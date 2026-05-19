@@ -37,7 +37,7 @@ def main(testnames, password, username, grade):
                         if isinstance(target_text, str):
                             if target_text[0] == "@":
                                 target_text = target_text[1:]
-                                bottun.input_box(target_text)
+                                bottun.input_box(elem, target_text)
                                 
                             else:
                                 bottun.radio_bottun(elem, target_text)
