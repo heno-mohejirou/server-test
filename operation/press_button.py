@@ -51,9 +51,16 @@ class PressBottun(ScreenOperation):
     # 入力ボックス
     def input_box(self, elem, target_text):
             try:
-                input_box = elem.find_element(By.CSS_SELECTOR, "input[type='text']")
+                # 親要素（formulation）全体から探す（qtextの外にinputがあるケースに対応）
+                container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
+                input_box = container.find_element(By.CSS_SELECTOR, "input[type='text']")
             except:
-                input_box = elem.find_element(By.CSS_SELECTOR, "input.form-control.d-inline")
+                try:
+                    # followingを使ってqtext以降に出現する最初のinputを探す
+                    input_box = elem.find_element(By.XPATH, ".//following::input[@type='text'][1]")
+                except:
+                    # 最終的なフォールバック（elem内部）
+                    input_box = elem.find_element(By.CSS_SELECTOR, "input.form-control.d-inline")
 
             # 要素が見える位置までスクロール
             self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", input_box)
