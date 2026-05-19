@@ -42,6 +42,8 @@ def main(testnames, password, username, grade):
                             else:
                                 bottun.radio_bottun(elem, target_text)
 
+                            print(f"[DEBUG] target_text={target_text}")
+
                         elif isinstance(target_text, list):
                             for ans in target_text:
                                 bottun.click_checkbox(elem, ans)
