@@ -85,22 +85,26 @@ class PressBottun(ScreenOperation):
     # ラジオボタン
     def radio_bottun(self, elem, target_text):
             try:
-                label_element = elem.find_element(By.XPATH, f'.//following::label[normalize-space(text())="{target_text}"]')
-                for_attr = label_element.get_attribute("for")
-                if for_attr:
-                    radio_button = self.driver.find_element(By.ID, for_attr)
-                else:
-                    radio_button = label_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio'] | .//preceding-sibling::input[@type='radio']")
-            except:
                 try:
-                    p_element = elem.find_element(By.XPATH, f'.//following::p[normalize-space(text())="{target_text}"]')
-                    radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                    label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(text())='{target_text}']")
+                    for_attr = label_element.get_attribute("for")
+                    if for_attr:
+                        radio_button = self.driver.find_element(By.ID, for_attr)
+                    else:
+                        radio_button = label_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio'] | .//preceding-sibling::input[@type='radio']")
                 except:
-                    div_element = elem.find_element(By.XPATH, f'.//following::div[normalize-space(text())="{target_text}"]')
-                    radio_button = div_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                    try:
+                        p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())='{target_text}']")
+                        radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                    except:
+                        div_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())='{target_text}']")
+                        radio_button = div_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
 
-            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
-            self.driver.execute_script("arguments[0].click();", radio_button)
+                self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
+                self.driver.execute_script("arguments[0].click();", radio_button)
+                return True
+            except:
+                return False
 
     # プルダウンリスト
     def pull_down_lsit(self, target_text):
