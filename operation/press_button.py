@@ -93,10 +93,10 @@ class PressBottun(ScreenOperation):
                     radio_button = label_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio'] | .//preceding-sibling::input[@type='radio']")
             except:
                 try:
-                    p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())="{target_text}"]")
+                    p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())='{target_text}']")
                     radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
                 except:
-                    div_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())="{target_text}"]")
+                    div_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())='{target_text}']")
                     radio_button = div_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
 
             self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
