@@ -113,11 +113,8 @@
     "junior":{
             "前期末成績に含まれる課題1":{
                         "L11を読み，本文の内容に合致する選択肢を選べ。":"バナナは輸送船内で熟さないように運ばれる。",
-                        "L12を読み，本文の内容に合致する選択肢を選べ。":"In the first paragraph, the data of the deaths caused by smoking, along with the approximate number of deaths is shown. Also, the types of diseases that may cause serious affect are described.",
-                        "L12を読み，本文の内容に合致する選択肢を選べ。":"You can live much longer if you don't smoke or quit smoking as soon as possible.",
-                        "L12を読み，本文の内容に合致する選択肢を選べ。":"You are not allowed to smoke in the public places in the US.",
-                        "L14を読み，本文の内容を踏まえ，最も妥当な解釈を選べ。":"None of the three gentlemen are happy after this episode.",
-                        "L14を読み，本文の内容を踏まえ，最も妥当な解釈を選べ。":"With the help of the porters, the three gentlemen might have gotten onboard if they were not too drunk.",
+                        "L12を読み，本文の内容に合致する選択肢を選べ。":["!","In the first paragraph, the data of the deaths caused by smoking, along with the approximate number of deaths is shown. Also, the types of diseases that may cause serious affect are described.","You can live much longer if you don't smoke or quit smoking as soon as possible.","You are not allowed to smoke in the public places in the US."],
+                        "L14を読み，本文の内容を踏まえ，最も妥当な解釈を選べ。":["!","None of the three gentlemen are happy after this episode.","With the help of the porters, the three gentlemen might have gotten onboard if they were not too drunk."],
                         "L15を読み，本文の記述と近い内容の記述を選択肢から選べ。":"Pablo Picasso, born in Malaga, Spain, demonstrated artistic talent from a young age, encouraged by his father, a painter and teacher. Despite being a poor student who often ignored his teachers, Picasso’s early drawings already displayed a maturity that hinted at his future potential.",
                         "育つ":"grow",
                         "今にも〜するところだ":"be about to（動詞）",
