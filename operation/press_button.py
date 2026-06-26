@@ -82,29 +82,78 @@ class PressBottun(ScreenOperation):
             except:
                 pass
 
-    # ラジオボタン
+    # ラジオボタン（完全一致 → ファジーマッチのフォールバック付き）
     def radio_bottun(self, elem, target_text):
+        import difflib
+
+        def _try_click(radio_button):
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
+            self.driver.execute_script("arguments[0].click();", radio_button)
+
+        # --- 完全一致 ---
+        try:
             try:
+                label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(text())='{target_text}']")
+                for_attr = label_element.get_attribute("for")
+                if for_attr:
+                    radio_button = self.driver.find_element(By.ID, for_attr)
+                else:
+                    radio_button = label_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio'] | .//preceding-sibling::input[@type='radio']")
+            except:
                 try:
-                    label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(text())='{target_text}']")
-                    for_attr = label_element.get_attribute("for")
-                    if for_attr:
-                        radio_button = self.driver.find_element(By.ID, for_attr)
-                    else:
-                        radio_button = label_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio'] | .//preceding-sibling::input[@type='radio']")
+                    p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())='{target_text}']")
+                    radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                except:
+                    div_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())='{target_text}']")
+                    radio_button = div_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+            _try_click(radio_button)
+            return True
+        except:
+            pass
+
+        # --- ファジーマッチ: formulation内のすべてのラジオボタンを取得して最も類似したものを選ぶ ---
+        try:
+            container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
+            answer_div = container.find_element(By.XPATH, ".//div[contains(@class,'answer')]")
+            radio_inputs = answer_div.find_elements(By.XPATH, ".//input[@type='radio']")
+
+            best_score = 0.0
+            best_radio = None
+            norm_target = self.edit_question(target_text)
+
+            for radio in radio_inputs:
+                radio_id = radio.get_attribute("id")
+                # label で対応するテキストを取得
+                label_text = ""
+                try:
+                    lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
+                    label_text = lbl.text.strip()
                 except:
                     try:
-                        p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())='{target_text}']")
-                        radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                        # ラジオの親 div/p のテキストを取得
+                        label_text = radio.find_element(By.XPATH, "./following-sibling::*[1]").text.strip()
                     except:
-                        div_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())='{target_text}']")
-                        radio_button = div_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                        pass
 
-                self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
-                self.driver.execute_script("arguments[0].click();", radio_button)
+                if not label_text:
+                    continue
+
+                score = difflib.SequenceMatcher(None, norm_target, self.edit_question(label_text)).ratio()
+                print(f"[FUZZY] '{label_text}' score={score:.2f}", flush=True)
+                if score > best_score:
+                    best_score = score
+                    best_radio = radio
+
+            if best_radio and best_score >= 0.4:
+                print(f"[FUZZY] 選択 score={best_score:.2f} target='{target_text}'", flush=True)
+                _try_click(best_radio)
                 return True
-            except:
+            else:
+                print(f"[FUZZY] 有効な選択肢なし (best_score={best_score:.2f}) target='{target_text}'", flush=True)
                 return False
+        except Exception as e:
+            print(f"[FUZZY ERROR] {e}", flush=True)
+            return False
 
     # プルダウンリスト
     def pull_down_lsit(self, target_text):
