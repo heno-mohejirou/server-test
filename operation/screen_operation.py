@@ -142,7 +142,7 @@ class ScreenOperation:
             primary = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, submit_xpath))
             )
-            self.driver.execute_script("arguments[0].scrollIntoView({block:"center"});", primary)
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", primary)
             self.driver.execute_script("arguments[0].click();", primary)
         except Exception as e:
             print(f"[ERROR] Could not click "Submit all and finish": {e}", flush=True)
@@ -153,7 +153,7 @@ class ScreenOperation:
             save_btn = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, confirm_xpath))
             )
-            self.driver.execute_script("arguments[0].scrollIntoView({block:"center"});", save_btn)
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", save_btn)
             self.driver.execute_script("arguments[0].click();", save_btn)
         except Exception as e:
             print(f"[ERROR] Could not click final confirmation: {e}", flush=True)
