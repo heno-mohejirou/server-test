@@ -145,7 +145,7 @@ class ScreenOperation:
             self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", primary)
             self.driver.execute_script("arguments[0].click();", primary)
         except Exception as e:
-            print(f"[ERROR] Could not click "Submit all and finish": {e}", flush=True)
+            print(f"[ERROR] Could not click 'Submit all and finish': {e}", flush=True)
         
         # Step 3: Click confirmation modal "Submit all and finish"
         try:
