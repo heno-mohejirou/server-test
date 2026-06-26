@@ -42,11 +42,20 @@ def main(testnames, password, username, grade):
                             else:
                                 bottun.radio_bottun(elem, target_text)
 
-                            print(f"[DEBUG] target_text={target_text}", flush=True)
-
                         elif isinstance(target_text, list):
-                            for ans in target_text:
-                                bottun.click_checkbox(elem, ans)
+                            if target_text and target_text[0] == "!":
+                                # ラジオボタン: リスト[1]を試し、見つからなければリスト[2]へフォールバック
+                                options = target_text[1:]
+                                clicked = False
+                                for opt in options:
+                                    if bottun.radio_bottun(elem, opt):
+                                        clicked = True
+                                        break
+                                if not clicked:
+                                    print(f"[WARNING] ラジオボタンの選択肢が見つかりませんでした: {options}", flush=True)
+                            else:
+                                for ans in target_text:
+                                    bottun.click_checkbox(elem, ans)
 
                         elif isinstance(target_text, dict):
                             bottun.pull_down_lsit(target_text)
