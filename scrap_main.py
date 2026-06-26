@@ -44,11 +44,12 @@ def main(testnames, password, username, grade):
 
                         elif isinstance(target_text, list):
                             if target_text and target_text[0] == "!":
-                                # ラジオボタン: リスト[1]を試し、見つからなければリスト[2]へフォールバック
+                                # ラジオボタン: 前の選択肢は完全一致のみ、最後の選択肢だけファジーマッチも使う
                                 options = target_text[1:]
                                 clicked = False
-                                for opt in options:
-                                    if bottun.radio_bottun(elem, opt):
+                                for i, opt in enumerate(options):
+                                    is_last = (i == len(options) - 1)
+                                    if bottun.radio_bottun(elem, opt, fuzzy=is_last):
                                         clicked = True
                                         break
                                 if not clicked:
