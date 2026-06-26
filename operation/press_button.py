@@ -93,7 +93,7 @@ class PressBottun(ScreenOperation):
         # --- 完全一致 ---
         def _find_radio_from_element(found_elem):
             """要素から対応するラジオボタンを探す（label[@for] 優先）"""
-            # ancestor の label に for 属性があればそのIDで探す
+            # 1. ancestor の label に for 属性があればそのIDで探す
             try:
                 parent_label = found_elem.find_element(By.XPATH, "ancestor::label[@for][1]")
                 for_attr = parent_label.get_attribute("for")
@@ -101,7 +101,18 @@ class PressBottun(ScreenOperation):
                     return self.driver.find_element(By.ID, for_attr)
             except:
                 pass
-            # preceding-sibling の input を探す
+            # 2. aria-labelledby パターン: 祖先のIDを持つdivを経由して input を探す
+            #    <input aria-labelledby="XYZ"> <div id="XYZ">...found_elem...</div>
+            try:
+                labeled_ancestor = found_elem.find_element(By.XPATH, "ancestor::div[@id][1]")
+                ancestor_id = labeled_ancestor.get_attribute("id")
+                if ancestor_id:
+                    return self.driver.find_element(
+                        By.XPATH, f".//input[@type='radio'][@aria-labelledby='{ancestor_id}']"
+                    )
+            except:
+                pass
+            # 3. preceding-sibling の input を探す（祖先ごとに順番に試す）
             try:
                 return found_elem.find_element(By.XPATH, "ancestor::*/preceding-sibling::input[@type='radio'][1]")
             except:
