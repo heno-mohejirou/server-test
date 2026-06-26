@@ -83,7 +83,7 @@ class PressBottun(ScreenOperation):
                 pass
 
     # ラジオボタン（完全一致 → ファジーマッチのフォールバック付き）
-    def radio_bottun(self, elem, target_text):
+    def radio_bottun(self, elem, target_text, fuzzy=True):
         import difflib
 
         def _try_click(radio_button):
@@ -91,27 +91,52 @@ class PressBottun(ScreenOperation):
             self.driver.execute_script("arguments[0].click();", radio_button)
 
         # --- 完全一致 ---
+        def _find_radio_from_element(found_elem):
+            """要素から対応するラジオボタンを探す（label[@for] 優先）"""
+            # ancestor の label に for 属性があればそのIDで探す
+            try:
+                parent_label = found_elem.find_element(By.XPATH, "ancestor::label[@for][1]")
+                for_attr = parent_label.get_attribute("for")
+                if for_attr:
+                    return self.driver.find_element(By.ID, for_attr)
+            except:
+                pass
+            # preceding-sibling の input を探す
+            try:
+                return found_elem.find_element(By.XPATH, "ancestor::*/preceding-sibling::input[@type='radio'][1]")
+            except:
+                pass
+            return found_elem.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+
         try:
             try:
-                label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(text())='{target_text}']")
+                # label 自身のテキストが一致
+                label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(.)='{target_text}']")
                 for_attr = label_element.get_attribute("for")
                 if for_attr:
                     radio_button = self.driver.find_element(By.ID, for_attr)
                 else:
-                    radio_button = label_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio'] | .//preceding-sibling::input[@type='radio']")
+                    radio_button = _find_radio_from_element(label_element)
             except:
                 try:
-                    p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(text())='{target_text}']")
-                    radio_button = p_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                    # p タグのテキストが一致
+                    p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(.)='{target_text}']")
+                    radio_button = _find_radio_from_element(p_element)
                 except:
-                    div_element = elem.find_element(By.XPATH, f".//following::div[normalize-space(text())='{target_text}']")
-                    radio_button = div_element.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
+                    # div の直接テキスト or 子要素込みテキストが一致（<br>混在ケース含む）
+                    div_element = elem.find_element(
+                        By.XPATH,
+                        f".//following::div[normalize-space(text())='{target_text}' or normalize-space(.)='{target_text}']"
+                    )
+                    radio_button = _find_radio_from_element(div_element)
             _try_click(radio_button)
             return True
         except:
             pass
 
-        # --- ファジーマッチ: formulation内のすべてのラジオボタンを取得して最も類似したものを選ぶ ---
+        # --- ファジーマッチ（最後の選択肢のみ有効）---
+        if not fuzzy:
+            return False
         try:
             container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
             answer_div = container.find_element(By.XPATH, ".//div[contains(@class,'answer')]")
