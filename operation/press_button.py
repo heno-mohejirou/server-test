@@ -85,6 +85,13 @@ class PressBottun(ScreenOperation):
     # ラジオボタン（完全一致 → ファジーマッチのフォールバック付き）
     def radio_bottun(self, elem, target_text, fuzzy=True):
         import difflib
+        # ★ デバッグ: formulation内のラジオ数を確認
+        try:
+            container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
+            all_radios = container.find_elements(By.XPATH, ".//input[@type='radio']")
+            print(f"[RADIO DEBUG] formulation内ラジオ数={len(all_radios)} target='{target_text}'", flush=True)
+        except Exception as e:
+            print(f"[RADIO DEBUG] formulation取得失敗: {e}", flush=True)
     
         def _try_click(radio_button):
             self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
