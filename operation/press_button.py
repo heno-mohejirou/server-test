@@ -214,8 +214,20 @@ class PressBottun(ScreenOperation):
                 print(f"[FUZZY] 選択 score={best_score:.2f} target='{target_text}'", flush=True)
                 _try_click(best_radio)
                 return True
+            elif best_radio:
+                # スコアが低くても best を押す
+                print(f"[FUZZY] 低スコアで強制選択 score={best_score:.2f} target='{target_text}'", flush=True)
+                _try_click(best_radio)
+                return True
             else:
-                print(f"[FUZZY] 有効な選択肢なし (best_score={best_score:.2f}) target='{target_text}'", flush=True)
+                # ラジオボタンが1つも取得できなかった場合、最初のラジオを強制クリック
+                print(f"[FALLBACK] 4番目のラジオボタンを強制クリック target='{target_text}'", flush=True)
+                if len(radio_inputs) >= 4:
+                    _try_click(radio_inputs[3])
+                    return True
+                elif radio_inputs:
+                    _try_click(radio_inputs[-1])
+                    return True
                 return False
         except Exception as e:
             print(f"[FUZZY ERROR] {e}", flush=True)
