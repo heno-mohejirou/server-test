@@ -81,7 +81,7 @@ class PressBottun(ScreenOperation):
                 input_box.send_keys(target_text)
             except:
                 pass
-
+                
     # ラジオボタン（完全一致 → ファジーマッチのフォールバック付き）
     def radio_bottun(self, elem, target_text, fuzzy=True):
         import difflib
@@ -91,8 +91,6 @@ class PressBottun(ScreenOperation):
             self.driver.execute_script("arguments[0].click();", radio_button)
     
         def _find_radio_from_element(found_elem):
-            """要素から対応するラジオボタンを探す"""
-            # 1. ancestor の label に for 属性があればそのIDで探す
             try:
                 parent_label = found_elem.find_element(By.XPATH, "ancestor::label[@for][1]")
                 for_attr = parent_label.get_attribute("for")
@@ -100,12 +98,7 @@ class PressBottun(ScreenOperation):
                     return self.driver.find_element(By.ID, for_attr)
             except:
                 pass
-    
-            # 2. 要素自身または祖先のIDが input[aria-labelledby] に使われているケース
-            #    <input aria-labelledby="XYZ"> <div id="XYZ">...found_elem...</div>
-            #    → found_elem 自身 or 祖先の id を aria-labelledby に持つ input を探す
             try:
-                # found_elem 自身のIDをまず試す
                 elem_id = found_elem.get_attribute("id")
                 if elem_id:
                     return self.driver.find_element(
@@ -114,7 +107,6 @@ class PressBottun(ScreenOperation):
             except:
                 pass
             try:
-                # 祖先のIDを持つ要素経由で探す（元のロジック）
                 labeled_ancestor = found_elem.find_element(By.XPATH, "ancestor::*[@id][1]")
                 ancestor_id = labeled_ancestor.get_attribute("id")
                 if ancestor_id:
@@ -123,14 +115,13 @@ class PressBottun(ScreenOperation):
                     )
             except:
                 pass
-
-            # 3. preceding-sibling の input を探す
             try:
                 return found_elem.find_element(By.XPATH, "ancestor::*/preceding-sibling::input[@type='radio'][1]")
             except:
                 pass
             return found_elem.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
     
+        # --- 完全一致 ---
         try:
             try:
                 label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(.)='{target_text}']")
@@ -151,14 +142,11 @@ class PressBottun(ScreenOperation):
                         )
                         radio_button = _find_radio_from_element(div_element)
                     except:
-                        # ★ 追加: <br> 混在ケース — div 内の span/text を含む子要素のテキストを個別チェック
+                        # <br> 混在ケース: innerText で比較
                         all_divs = elem.find_elements(By.XPATH, ".//following::div")
                         matched_div = None
                         for d in all_divs:
-                            # innerText を JS で取得（<br> を改行として処理済み）
-                            inner = self.driver.execute_script(
-                                "return arguments[0].innerText;", d
-                            )
+                            inner = self.driver.execute_script("return arguments[0].innerText;", d)
                             if inner and inner.strip() == target_text.strip():
                                 matched_div = d
                                 break
@@ -175,29 +163,7 @@ class PressBottun(ScreenOperation):
         if not fuzzy:
             return False
         try:
-            for radio in radio_inputs:
-                radio_id = radio.get_attribute("id")
-                label_text = ""
-                try:
-                    lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
-                    label_text = lbl.text.strip()
-                except:
-                    pass
-            
-                if not label_text:
-                    try:
-                        labelledby_id = radio.get_attribute("aria-labelledby")
-                        if labelledby_id:
-                            label_div = self.driver.find_element(By.ID, labelledby_id)
-                            label_text = self.driver.execute_script(
-                                "return arguments[0].innerText;", label_div
-                            ).strip()
-                    except:
-                        pass
-            
-                # ★ デバッグ追加
-                print(f"[DEBUG] radio_id={radio_id}, label_text='{label_text}', target_text='{target_text}'", flush=True)
-                print(f"[DEBUG] norm_target='{norm_target}', edit(label)='{self.edit_question(label_text)}'", flush=True)
+            # ★ radio_inputs と norm_target をここで定義（以前のコードでは順序が逆だった）
             container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
             answer_div = container.find_element(By.XPATH, ".//div[contains(@class,'answer')]")
             radio_inputs = answer_div.find_elements(By.XPATH, ".//input[@type='radio']")
@@ -205,17 +171,18 @@ class PressBottun(ScreenOperation):
             best_score = 0.0
             best_radio = None
             norm_target = self.edit_question(target_text)
+            print(f"[FUZZY] norm_target='{norm_target}'", flush=True)
     
             for radio in radio_inputs:
                 radio_id = radio.get_attribute("id")
                 label_text = ""
+
                 try:
                     lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
                     label_text = lbl.text.strip()
                 except:
                     pass
     
-                # ★ aria-labelledby 経由でラベルテキストを取得
                 if not label_text:
                     try:
                         labelledby_id = radio.get_attribute("aria-labelledby")
@@ -236,8 +203,9 @@ class PressBottun(ScreenOperation):
                 if not label_text:
                     continue
     
-                score = difflib.SequenceMatcher(None, norm_target, self.edit_question(label_text)).ratio()
-                print(f"[FUZZY] '{label_text}' score={score:.2f}", flush=True)
+                edited_label = self.edit_question(label_text)
+                score = difflib.SequenceMatcher(None, norm_target, edited_label).ratio()
+                print(f"[FUZZY] radio_id={radio_id} label='{label_text}' edited='{edited_label}' score={score:.2f}", flush=True)
                 if score > best_score:
                     best_score = score
                     best_radio = radio
@@ -252,6 +220,7 @@ class PressBottun(ScreenOperation):
         except Exception as e:
             print(f"[FUZZY ERROR] {e}", flush=True)
             return False
+            
     # プルダウンリスト
     def pull_down_lsit(self, target_text):
         rows = self.driver.find_elements(By.XPATH, "//tr[contains(@class,'r')]")
