@@ -29,6 +29,7 @@ def main(testnames, password, username, grade):
 
                 while True:
                     for elem in ansque.get_question():
+                        print(f"[DEBUG] elem={elem}")
                         target_text = ansque.get_anser(elem, pairs_json)
                         
                         if not target_text:
