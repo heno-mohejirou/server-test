@@ -229,6 +229,39 @@ class PressBottun(ScreenOperation):
         except Exception as e:
             print(f"[FUZZY ERROR] {e}", flush=True)
             return False
+
+        # --- 最終フォールバック: formulation内の全ラジオから直接押す ---
+        try:
+            container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
+            all_radios = container.find_elements(By.XPATH, ".//input[@type='radio']")
+            print(f"[FINAL FALLBACK] 全ラジオ数={len(all_radios)} target='{target_text}'", flush=True)
+            
+            # aria-labelledby のテキストで一致を試みる
+            for radio in all_radios:
+                try:
+                    labelledby_id = radio.get_attribute("aria-labelledby")
+                    if labelledby_id:
+                        label_div = self.driver.find_element(By.ID, labelledby_id)
+                        inner = self.driver.execute_script("return arguments[0].innerText;", label_div)
+                        inner_clean = re.sub(r"\s+", "", (inner or "").strip())
+                        target_clean = re.sub(r"\s+", "", target_text.strip())
+                        print(f"[FINAL FALLBACK] inner_clean='{inner_clean}' target_clean='{target_clean}'", flush=True)
+                        if inner_clean == target_clean:
+                            print(f"[FINAL FALLBACK] 一致！クリック", flush=True)
+                            _try_click(radio)
+                            return True
+                except:
+                    pass
+            
+            # それでも見つからなければ最初のラジオを押す
+            if all_radios:
+                print(f"[FINAL FALLBACK] 強制的に最初のラジオをクリック", flush=True)
+                _try_click(all_radios[0])
+                return True
+        except Exception as e:
+            print(f"[FINAL FALLBACK ERROR] {e}", flush=True)
+        
+        return False
             
     # プルダウンリスト
     def pull_down_lsit(self, target_text):
