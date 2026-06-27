@@ -85,178 +85,94 @@ class PressBottun(ScreenOperation):
     # ラジオボタン（完全一致 → ファジーマッチのフォールバック付き）
     def radio_bottun(self, elem, target_text, fuzzy=True):
         import difflib
-        # ★ デバッグ: formulation内のラジオ数を確認
-        try:
-            container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
-            all_radios = container.find_elements(By.XPATH, ".//input[@type='radio']")
-            print(f"[RADIO DEBUG] formulation内ラジオ数={len(all_radios)} target='{target_text}'", flush=True)
-        except Exception as e:
-            print(f"[RADIO DEBUG] formulation取得失敗: {e}", flush=True)
-    
+
         def _try_click(radio_button):
             self.driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_button)
             self.driver.execute_script("arguments[0].click();", radio_button)
-    
-        def _find_radio_from_element(found_elem):
-            try:
-                parent_label = found_elem.find_element(By.XPATH, "ancestor::label[@for][1]")
-                for_attr = parent_label.get_attribute("for")
-                if for_attr:
-                    return self.driver.find_element(By.ID, for_attr)
-            except:
-                pass
-            try:
-                elem_id = found_elem.get_attribute("id")
-                if elem_id:
-                    return self.driver.find_element(
-                        By.XPATH, f".//input[@type='radio'][@aria-labelledby='{elem_id}']"
-                    )
-            except:
-                pass
-            try:
-                labeled_ancestor = found_elem.find_element(By.XPATH, "ancestor::*[@id][1]")
-                ancestor_id = labeled_ancestor.get_attribute("id")
-                if ancestor_id:
-                    return self.driver.find_element(
-                        By.XPATH, f".//input[@type='radio'][@aria-labelledby='{ancestor_id}']"
-                    )
-            except:
-                pass
-            try:
-                return found_elem.find_element(By.XPATH, "ancestor::*/preceding-sibling::input[@type='radio'][1]")
-            except:
-                pass
-            return found_elem.find_element(By.XPATH, ".//ancestor::div/preceding-sibling::input[@type='radio']")
-    
-        # --- 完全一致 ---
-        try:
-            try:
-                label_element = elem.find_element(By.XPATH, f".//following::label[normalize-space(.)='{target_text}']")
-                for_attr = label_element.get_attribute("for")
-                if for_attr:
-                    radio_button = self.driver.find_element(By.ID, for_attr)
-                else:
-                    radio_button = _find_radio_from_element(label_element)
-            except Exception as e1:
-                print(f"[EXACT] label失敗: {e1}", flush=True)
-                try:
-                    p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(.)='{target_text}']")
-                    radio_button = _find_radio_from_element(p_element)
-                except Exception as e2:
-                    print(f"[EXACT] p失敗: {e2}", flush=True)
-                    try:
-                        div_element = elem.find_element(
-                            By.XPATH,
-                            f".//following::div[normalize-space(text())='{target_text}' or normalize-space(.)='{target_text}']"
-                        )
-                        radio_button = _find_radio_from_element(div_element)
-                    except Exception as e3:
-                        print(f"[EXACT] div失敗: {e3}", flush=True)
-                        all_divs = elem.find_elements(By.XPATH, ".//following::div")
-                        matched_div = None
-                        for d in all_divs:
-                            inner = self.driver.execute_script("return arguments[0].innerText;", d)
-                            if inner and inner.strip() == target_text.strip():
-                                matched_div = d
-                                break
-                        if matched_div is None:
-                            raise Exception("div not found")
-                        radio_button = _find_radio_from_element(matched_div)
 
-            _try_click(radio_button)
-            return True
-        except Exception as e_all:
-            print(f"[EXACT] 完全一致失敗、ファジーへ: {e_all}", flush=True)
-    
-        # --- ファジーマッチ ---
-        if not fuzzy:
-            return False
+        # formulation内のラジオを全取得
         try:
-            # ★ radio_inputs と norm_target をここで定義（以前のコードでは順序が逆だった）
             container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
-            answer_div = container.find_element(By.XPATH, ".//div[contains(@class,'answer')]")
-            radio_inputs = answer_div.find_elements(By.XPATH, ".//input[@type='radio']")
-    
+            radio_inputs = container.find_elements(By.XPATH, ".//input[@type='radio']")
+            print(f"[RADIO] ラジオ数={len(radio_inputs)} target='{target_text}'", flush=True)
+        except Exception as e:
+            print(f"[RADIO] formulation取得失敗: {e}", flush=True)
+            return False
+
+        if not radio_inputs:
+            print(f"[RADIO] ラジオなし", flush=True)
+            return False
+
+        target_clean = re.sub(r"\s+", "", target_text.strip())
+
+        # --- aria-labelledby で直接テキスト一致 ---
+        for radio in radio_inputs:
+            try:
+                labelledby_id = radio.get_attribute("aria-labelledby")
+                if labelledby_id:
+                    label_div = self.driver.find_element(By.ID, labelledby_id)
+                    inner = self.driver.execute_script("return arguments[0].innerText;", label_div)
+                    inner_clean = re.sub(r"\s+", "", (inner or "").strip())
+                    print(f"[RADIO] aria inner='{inner_clean}' target='{target_clean}'", flush=True)
+                    if inner_clean == target_clean:
+                        print(f"[RADIO] 一致！クリック", flush=True)
+                        _try_click(radio)
+                        return True
+            except Exception as e:
+                print(f"[RADIO] aria取得失敗: {e}", flush=True)
+
+        # --- label テキスト一致 ---
+        for radio in radio_inputs:
+            try:
+                radio_id = radio.get_attribute("id")
+                lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
+                lbl_clean = re.sub(r"\s+", "", lbl.text.strip())
+                if lbl_clean == target_clean:
+                    print(f"[RADIO] label一致！クリック", flush=True)
+                    _try_click(radio)
+                    return True
+            except:
+                pass
+
+        # --- ファジーマッチ ---
+        if fuzzy:
+            norm_target = self.edit_question(target_text)
             best_score = 0.0
             best_radio = None
-            norm_target = self.edit_question(target_text)
-            print(f"[FUZZY] norm_target='{norm_target}'", flush=True)
-    
             for radio in radio_inputs:
-                radio_id = radio.get_attribute("id")
                 label_text = ""
-
                 try:
-                    lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
-                    label_text = lbl.text.strip()
+                    labelledby_id = radio.get_attribute("aria-labelledby")
+                    if labelledby_id:
+                        label_div = self.driver.find_element(By.ID, labelledby_id)
+                        label_text = self.driver.execute_script("return arguments[0].innerText;", label_div).strip()
                 except:
                     pass
-    
                 if not label_text:
                     try:
-                        labelledby_id = radio.get_attribute("aria-labelledby")
-                        if labelledby_id:
-                            label_div = self.driver.find_element(By.ID, labelledby_id)
-                            label_text = self.driver.execute_script(
-                                "return arguments[0].innerText;", label_div
-                            ).strip()
+                        radio_id = radio.get_attribute("id")
+                        lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
+                        label_text = lbl.text.strip()
                     except:
                         pass
-    
-                if not label_text:
-                    try:
-                        label_text = radio.find_element(By.XPATH, "./following-sibling::*[1]").text.strip()
-                    except:
-                        pass
-    
                 if not label_text:
                     continue
-    
-                edited_label = self.edit_question(label_text)
-                score = difflib.SequenceMatcher(None, norm_target, edited_label).ratio()
-                print(f"[FUZZY] radio_id={radio_id} label='{label_text}' edited='{edited_label}' score={score:.2f}", flush=True)
+                edited = self.edit_question(label_text)
+                score = difflib.SequenceMatcher(None, norm_target, edited).ratio()
+                print(f"[FUZZY] label='{label_text}' score={score:.2f}", flush=True)
                 if score > best_score:
                     best_score = score
                     best_radio = radio
-    
-            if best_radio and best_score >= 0.4:
-                print(f"[FUZZY] 選択 score={best_score:.2f} target='{target_text}'", flush=True)
+
+            if best_radio:
+                print(f"[FUZZY] 選択 score={best_score:.2f}", flush=True)
                 _try_click(best_radio)
                 return True
-            elif best_radio:
-                # スコアが低くても best を押す
-                print(f"[FUZZY] 低スコアで強制選択 score={best_score:.2f} target='{target_text}'", flush=True)
-                _try_click(best_radio)
-                return True
-            else:
-                # ラジオボタンが取得できなかった or スコアが低い場合
-                # aria-labelledby のテキストで直接一致を試みる
-                print(f"[FINAL FALLBACK] 全ラジオ数={len(radio_inputs)} target='{target_text}'", flush=True)
-                for radio in radio_inputs:
-                    try:
-                        labelledby_id = radio.get_attribute("aria-labelledby")
-                        if labelledby_id:
-                            label_div = self.driver.find_element(By.ID, labelledby_id)
-                            inner = self.driver.execute_script("return arguments[0].innerText;", label_div)
-                            inner_clean = re.sub(r"\s+", "", (inner or "").strip())
-                            target_clean = re.sub(r"\s+", "", target_text.strip())
-                            print(f"[FINAL FALLBACK] inner_clean='{inner_clean}' target_clean='{target_clean}'", flush=True)
-                            if inner_clean == target_clean:
-                                print(f"[FINAL FALLBACK] 一致！クリック", flush=True)
-                                _try_click(radio)
-                                return True
-                    except:
-                        pass
-                # それでも見つからなければ最初のラジオを押す
-                if radio_inputs:
-                    print(f"[FINAL FALLBACK] 強制的に最初のラジオをクリック", flush=True)
-                    _try_click(radio_inputs[0])
-                    return True
-                return False
-        except Exception as e:
-            print(f"[FUZZY ERROR] {e}", flush=True)
-            return False
-            
+
+        # --- 最終フォールバック: 最初のラジオを押す ---
+        print(f"[FALLBACK] 最初のラジオを強制クリック", flush=True)
+        _try_click(radio_inputs[0])
+        return True
     # プルダウンリスト
     def pull_down_lsit(self, target_text):
         rows = self.driver.find_elements(By.XPATH, "//tr[contains(@class,'r')]")
