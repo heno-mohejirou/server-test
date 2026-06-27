@@ -175,6 +175,29 @@ class PressBottun(ScreenOperation):
         if not fuzzy:
             return False
         try:
+            for radio in radio_inputs:
+                radio_id = radio.get_attribute("id")
+                label_text = ""
+                try:
+                    lbl = self.driver.find_element(By.XPATH, f".//label[@for='{radio_id}']")
+                    label_text = lbl.text.strip()
+                except:
+                    pass
+            
+                if not label_text:
+                    try:
+                        labelledby_id = radio.get_attribute("aria-labelledby")
+                        if labelledby_id:
+                            label_div = self.driver.find_element(By.ID, labelledby_id)
+                            label_text = self.driver.execute_script(
+                                "return arguments[0].innerText;", label_div
+                            ).strip()
+                    except:
+                        pass
+            
+                # ★ デバッグ追加
+                print(f"[DEBUG] radio_id={radio_id}, label_text='{label_text}', target_text='{target_text}'", flush=True)
+                print(f"[DEBUG] norm_target='{norm_target}', edit(label)='{self.edit_question(label_text)}'", flush=True)
             container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
             answer_div = container.find_element(By.XPATH, ".//div[contains(@class,'answer')]")
             radio_inputs = answer_div.find_elements(By.XPATH, ".//input[@type='radio']")
