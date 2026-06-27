@@ -130,19 +130,21 @@ class PressBottun(ScreenOperation):
                     radio_button = self.driver.find_element(By.ID, for_attr)
                 else:
                     radio_button = _find_radio_from_element(label_element)
-            except:
+            except Exception as e1:
+                print(f"[EXACT] label失敗: {e1}", flush=True)
                 try:
                     p_element = elem.find_element(By.XPATH, f".//following::p[normalize-space(.)='{target_text}']")
                     radio_button = _find_radio_from_element(p_element)
-                except:
+                except Exception as e2:
+                    print(f"[EXACT] p失敗: {e2}", flush=True)
                     try:
                         div_element = elem.find_element(
                             By.XPATH,
                             f".//following::div[normalize-space(text())='{target_text}' or normalize-space(.)='{target_text}']"
                         )
                         radio_button = _find_radio_from_element(div_element)
-                    except:
-                        # <br> 混在ケース: innerText で比較
+                    except Exception as e3:
+                        print(f"[EXACT] div失敗: {e3}", flush=True)
                         all_divs = elem.find_elements(By.XPATH, ".//following::div")
                         matched_div = None
                         for d in all_divs:
@@ -153,11 +155,11 @@ class PressBottun(ScreenOperation):
                         if matched_div is None:
                             raise Exception("div not found")
                         radio_button = _find_radio_from_element(matched_div)
-    
+
             _try_click(radio_button)
             return True
-        except:
-            pass
+        except Exception as e_all:
+            print(f"[EXACT] 完全一致失敗、ファジーへ: {e_all}", flush=True)
     
         # --- ファジーマッチ ---
         if not fuzzy:
