@@ -113,8 +113,11 @@ class PressBottun(ScreenOperation):
                     label_div = self.driver.find_element(By.ID, labelledby_id)
                     inner = self.driver.execute_script("return arguments[0].innerText;", label_div)
                     inner_clean = re.sub(r"\s+", "", (inner or "").strip())
-                    print(f"[RADIO] aria inner='{inner_clean}' target='{target_clean}'", flush=True)
-                    if inner_clean == target_clean:
+                    # ★ 先頭の番号（例: "1." "2." "a." "e."）を除去して比較
+                    inner_no_num = re.sub(r"^\d+\.", "", inner_clean)
+                    inner_no_num = re.sub(r"^[a-eA-E]\.", "", inner_no_num)
+                    print(f"[RADIO] aria inner='{inner_no_num}' target='{target_clean}'", flush=True)
+                    if inner_no_num == target_clean:
                         print(f"[RADIO] 一致！クリック", flush=True)
                         _try_click(radio)
                         return True
