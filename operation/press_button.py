@@ -172,10 +172,12 @@ class PressBottun(ScreenOperation):
                 _try_click(best_radio)
                 return True
 
-        # --- 最終フォールバック: 最初のラジオを押す ---
-        print(f"[FALLBACK] 最初のラジオを強制クリック", flush=True)
-        _try_click(radio_inputs[0])
-        return True
+            # --- 最終フォールバック: fuzzy=True の時のみ最初のラジオを押す ---
+            print(f"[FALLBACK] 最初のラジオを強制クリック", flush=True)
+            _try_click(radio_inputs[0])
+            return True
+
+        return False
     # プルダウンリスト
     def pull_down_lsit(self, target_text):
         rows = self.driver.find_elements(By.XPATH, "//tr[contains(@class,'r')]")
