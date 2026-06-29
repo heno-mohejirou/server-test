@@ -45,16 +45,28 @@ def main(testnames, password, username, grade):
 
                         elif isinstance(target_text, list):
                             if target_text and target_text[0] == "!":
-                                # ラジオボタン: 前の選択肢は完全一致のみ、最後の選択肢だけファジーマッチも使う
                                 options = target_text[1:]
                                 clicked = False
-                                for i, opt in enumerate(options):
-                                    is_last = (i == len(options) - 1)
-                                    if bottun.radio_bottun(elem, opt, fuzzy=is_last):
+                                # まず全候補を fuzzy=False で完全一致のみ試す
+                                for opt in options:
+                                    if bottun.radio_bottun(elem, opt, fuzzy=False):
                                         clicked = True
                                         break
+                                # 見つからなければ最後の候補だけ fuzzy=True で試す
                                 if not clicked:
-                                    print(f"[WARNING] ラジオボタンの選択肢が見つかりませんでした: {options}", flush=True)
+                                    if bottun.radio_bottun(elem, options[-1], fuzzy=True):
+                                        clicked = True
+                                # それでも見つからなければ強制クリック
+                                if not clicked:
+                                    print(f"[WARNING] 全候補不一致、最初のラジオを強制クリック: {options}", flush=True)
+                                    try:
+                                        container = elem.find_element(By.XPATH, "./ancestor::div[contains(@class,'formulation')]")
+                                        radio_inputs = container.find_elements(By.XPATH, ".//input[@type='radio']")
+                                        if radio_inputs:
+                                            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", radio_inputs[0])
+                                            driver.execute_script("arguments[0].click();", radio_inputs[0])
+                                    except Exception as e:
+                                        print(f"[WARNING ERROR] {e}", flush=True)
                             else:
                                 for ans in target_text:
                                     bottun.click_checkbox(elem, ans)
