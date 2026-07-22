@@ -343,7 +343,7 @@
                         "2. When they play tennis, most of the time they do it in the tennis court near the park.":["2の文に文法的誤りはない。", "1の文の「with」は「by」とすべきである。", "4の文には2箇所文法的誤りがある。"],
                         "（名詞）と関係がある":"have something to do with（名詞）",
 
-                        "tool":["!", "道具", "道筋"]
+                        "tool":"手立て"
                     }
     }
 }
