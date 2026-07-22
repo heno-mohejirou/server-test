@@ -77,11 +77,11 @@ class ScreenOperation:
 
         """２年生コース"""
         if grade == "sophomore":
-            links = ["Home", "商船学科2026", "２年", "S2-2026-英語表現"]
+            links = ["Home", "情報工学科", "２年", "I2-2026-英語表現"]
 
         """３年生コース"""
         if grade == "junior":
-            links = ["Home", "情報工学科", "３年", "I3-2026-総合英語"]
+            links = ["Home", "情報工学科", "２年", "I2-2026-総合英語"]
 
         for link in links:
             try:
