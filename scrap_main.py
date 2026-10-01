@@ -5,7 +5,7 @@ from operation.screen_operation import ScreenOperation
 from selenium.webdriver.common.by import By
 
 
-def main(tests, password, username):
+def main(tests, password, username, details):
 
     browser = None
     results_log = []
