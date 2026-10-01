@@ -30,7 +30,7 @@ def main(tests, password, username):
             # APIから受け取った key / details
             # --------------------------------------
             testname = test["key"]
-            details = test["details"]
+            details = test["testDetails"]
 
             print(
                 f"[TEST] testname={testname}",
