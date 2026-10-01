@@ -13,7 +13,7 @@ class AnserQuestion(ScreenOperation):
         super().__init__(driver)
 
     # 問題名から回答を取得
-    def test_json(self, grade, testname):
+    def test_json(self, testname):
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         ansque_path = os.path.join(root_dir, "data", "tests.json")
         try:
@@ -23,20 +23,13 @@ class AnserQuestion(ScreenOperation):
             print(f"JSON Load error: {e}", flush=True)
             raise e
 
-        print(f"grade = {grade}", flush=True)
         print(f"testname = {testname}", flush=True)
-        print(f"available grades = {list(json_obj.keys())}", flush=True)
-        print(f"available tests = {list(json_obj.get(grade, {}).keys())}", flush=True)
 
-        if testname not in json_obj.get(grade, {}):
-            print(f"Error: testname '{testname}' not found in grade '{grade}'", flush=True)
-            raise KeyError(f"testname '{testname}' not found in grade '{grade}'")
+        if testname not in json_obj.get(testname, {}):
+            print(f"Error: testname '{testname}' not found in testname '{testname}'", flush=True)
+            raise KeyError(f"testname '{testname}' not found in testname '{testname}'")
 
-
-        # print(f"[DEBUG] json_obj={json_obj}")
-        # print(f"[DEBUG] grade={grade}")
-
-        pairs_json = json_obj[grade][testname]
+        pairs_json = json_obj[testname]
         return pairs_json
     
     # 問題文の取得
