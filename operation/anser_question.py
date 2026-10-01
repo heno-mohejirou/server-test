@@ -16,21 +16,27 @@ class AnserQuestion(ScreenOperation):
     def test_json(self, testname):
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         ansque_path = os.path.join(root_dir, "data", "tests.json")
+    
         try:
             with open(ansque_path, "r", encoding="utf-8") as f:
                 json_obj = json.load(f)
         except Exception as e:
             print(f"JSON Load error: {e}", flush=True)
             raise e
-
+    
         print(f"testname = {testname}", flush=True)
-
-        if testname not in json_obj.get(testname, {}):
-            print(f"Error: testname '{testname}' not found in testname '{testname}'", flush=True)
-            raise KeyError(f"testname '{testname}' not found in testname '{testname}'")
-
-        pairs_json = json_obj[testname]
-        return pairs_json
+        print(f"available tests = {list(json_obj.keys())}", flush=True)
+    
+        if testname not in json_obj:
+            print(
+                f"Error: testname '{testname}' not found",
+                flush=True
+            )
+            raise KeyError(
+                f"testname '{testname}' not found"
+            )
+    
+        return json_obj[testname]
     
     # 問題文の取得
     def get_question(self):
