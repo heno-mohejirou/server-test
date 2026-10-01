@@ -71,44 +71,93 @@ class ScreenOperation:
         except:
             return False
 
-    # 問題遷移
-    def course(self, grade, testname):
+        # 問題遷移
+        # 問題遷移
+    def course(self, details, testname):
         driver = self.driver
-
-        """２年生コース"""
-        if grade == "sophomore":
-            links = ["Home", "情報工学科", "２年", "I2-2026-英語表現"]
-
-        """３年生コース"""
-        if grade == "junior":
-            links = ["Home", "情報工学科", "２年", "I2-2026-総合英語"]
-
-        for link in links:
+    
+        # details に書かれている順番にリンクをたどる
+        for link in details:
             try:
                 elem = WebDriverWait(driver, 10).until(
-                    lambda d: d.find_element(By.LINK_TEXT, link)
+                    EC.presence_of_element_located(
+                        (By.LINK_TEXT, link)
+                    )
                 )
-            except:
+            except Exception:
                 raise RuntimeError(f"リンクが見つかりません: {link}")
-
+    
             driver.execute_script(
-                "arguments[0].scrollIntoView({block:'center'});", elem
+                "arguments[0].scrollIntoView({block:'center'});",
+                elem
             )
-            driver.execute_script("arguments[0].click();", elem)
-
+    
+            try:
+                WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable(
+                        (By.LINK_TEXT, link)
+                    )
+                )
+                driver.execute_script(
+                    "arguments[0].click();",
+                    elem
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    f"リンクをクリックできません: {link} / {e}"
+                )
+    
+        # 最後に testname (key) のテストを探してクリック
         try:
             elem = WebDriverWait(driver, 10).until(
-                lambda d: d.find_element(
-                    By.XPATH, f"//a[contains(., '{testname}')]"
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        f"//a[contains(normalize-space(.), {self._xpath_literal(testname)})]"
+                    )
                 )
             )
-        except:
-            raise RuntimeError(f"テストが見つかりません: {testname}")
-
+        except Exception:
+            raise RuntimeError(
+                f"テストが見つかりません: {testname}"
+            )
+    
         driver.execute_script(
-            "arguments[0].scrollIntoView({block:'center'});", elem
+            "arguments[0].scrollIntoView({block:'center'});",
+            elem
         )
-        driver.execute_script("arguments[0].click();", elem)
+    
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable(
+                    (
+                        By.XPATH,
+                        f"//a[contains(normalize-space(.), {self._xpath_literal(testname)})]"
+                    )
+                )
+            )
+            driver.execute_script(
+                "arguments[0].click();",
+                elem
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"テストをクリックできません: {testname} / {e}"
+            )
+    
+    
+    # XPath内で文字列を安全に扱うための補助関数
+    def _xpath_literal(self, text):
+        if "'" not in text:
+            return f"'{text}'"
+    
+        if '"' not in text:
+            return f'"{text}"'
+    
+        parts = text.split("'")
+        return "concat(" + ", \"'\", ".join(
+            f"'{part}'" for part in parts
+        ) + ")"
 
     # 回答送信
     def save(self):
