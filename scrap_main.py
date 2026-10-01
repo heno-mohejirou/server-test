@@ -5,7 +5,7 @@ from operation.screen_operation import ScreenOperation
 from selenium.webdriver.common.by import By
 
 
-def main(tests, password, username, details):
+def main(testnames, password, username, details):
 
     browser = None
     results_log = []
@@ -21,50 +21,34 @@ def main(tests, password, username, details):
         bottun = PressBottun(driver)
         ansque = AnserQuestion(driver)
 
-        # ==========================================
-        # テストごとに処理
-        # ==========================================
-        for test in tests:
+        # testnames は ["前期中間までの課題1"] のようなリスト
+        if isinstance(testnames, str):
+            testnames = [testnames]
 
-            # --------------------------------------
-            # APIから受け取った key / details
-            # --------------------------------------
-            testname = test
-            details = test["testDetails"]
+        # details は
+        # ["Home", "商船学科2026", "２年", "S2-2026-英語表現"]
+        # のようなリスト
 
-            print(
-                f"[TEST] testname={testname}",
-                flush=True
-            )
+        for testname in testnames:
 
-            print(
-                f"[TEST] details={details}",
-                flush=True
-            )
+            print(f"[TEST] testname: {testname}", flush=True)
+            print(f"[TEST] details: {details}", flush=True)
 
             try:
                 # Moodleトップへ戻る
                 driver.get(browser.url)
 
-                # ----------------------------------
                 # 問題と回答データ取得
-                # ----------------------------------
-                pairs_json = ansque.test_json(
-                    testname
-                )
+                pairs_json = ansque.test_json(testname)
 
-                # ----------------------------------
-                # details に従ってMoodle内を移動
-                # 最後に testname をクリック
-                # ----------------------------------
+                # detailsに従ってMoodle内を移動
+                # 最後にtestnameのテストをクリック
                 operation.course(
                     details,
                     testname
                 )
 
-                # ----------------------------------
                 # テスト開始
-                # ----------------------------------
                 operation.quiz()
                 operation.submit_page()
 
@@ -123,7 +107,7 @@ def main(tests, password, username, details):
 
                                 clicked = False
 
-                                # まず完全一致
+                                # 完全一致を優先
                                 for opt in options:
 
                                     if bottun.radio_bottun(
@@ -134,8 +118,7 @@ def main(tests, password, username, details):
                                         clicked = True
                                         break
 
-                                # 完全一致で見つからなければ
-                                # 最後の候補をfuzzyで試す
+                                # 見つからなければfuzzy
                                 if not clicked:
 
                                     if bottun.radio_bottun(
@@ -205,15 +188,11 @@ def main(tests, password, username, details):
                                 target_text
                             )
 
-                    # ----------------------------------
-                    # 次ページ
-                    # ----------------------------------
+                    # 次のページ
                     if not operation.next_page():
                         break
 
-                # ----------------------------------
                 # 回答送信
-                # ----------------------------------
                 operation.save()
 
                 results_log.append(
