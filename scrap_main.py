@@ -29,7 +29,7 @@ def main(tests, password, username, details):
             # --------------------------------------
             # APIから受け取った key / details
             # --------------------------------------
-            testname = test["key"]
+            testname = test
             details = test["testDetails"]
 
             print(
