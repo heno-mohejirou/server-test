@@ -37,7 +37,7 @@ def process():
     username = data["username"]
     password = data["password"]
     testnames = data["testname"]
-    details = data["testDetails""]
+    details = data["testDetails"]
 
     # ==========================================
     # 入力確認
