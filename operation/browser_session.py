@@ -100,7 +100,11 @@ class BrowserSession:
 
         driver.find_element(By.ID, "password").clear()
         driver.find_element(By.ID, "password").send_keys(password)
-        driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
+        password_input = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "password"))
+        )
+        
+        password_input.send_keys(Keys.RETURN)
 
         WebDriverWait(driver, 10).until(
             lambda d: "login" not in d.current_url.lower()
